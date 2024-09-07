@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bạn Nghĩ Vin Đoán</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #ff69b4;
+        }
+        .question {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        .answers {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .answer {
+            background-color: #ff1493;
+            color: #fff;
+            border: none;
+            padding: 15px 25px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .answer:hover {
+            background-color: #c71585;
+        }
+        .result {
+            font-size: 1.5em;
+            margin-top: 20px;
+            color: #32cd32;
+        }
+        .hidden {
+            display: none;
+        }
+        .restart {
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            padding: 15px 25px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .restart:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bạn Nghĩ Vin Đoán</h1>
+        <div id="question-container">
+            <div class="question"></div>
+            <div class="answers">
+                <button class="answer" onclick="answerQuestion(true)">Có</button>
+                <button class="answer" onclick="answerQuestion(false)">Không</button>
+            </div>
+        </div>
+        <div id="result" class="result hidden"></div>
+        <button id="restart" class="restart hidden" onclick="restartGame()">Chơi lại</button>
+    </div>
+    <script>
+        const questions = [
+            { question: "Nhân vật BTS có giọng hát cao và có thể hát những đoạn cao không?", yes: [0, 2], no: [1, 3, 4, 5, 6] },
+            { question: "Nhân vật BTS thường xuyên tham gia viết và sản xuất nhạc cho nhóm không?", yes: [1, 3, 4], no: [0, 2, 5, 6] },
+            { question: "Nhân vật BTS là người lớn tuổi nhất trong nhóm không?", yes: [5], no: [0, 1, 2, 3, 4, 6] },
+            { question: "Nhân vật BTS sinh ra ở Daegu không?", yes: [6], no: [0, 1, 2, 3, 4, 5] },
+            { question: "Nhân vật BTS nổi tiếng với khả năng nhảy tốt và là một trong những người nhảy chính của nhóm không?", yes: [2, 3], no: [0, 1, 4, 5, 6] },
+            { question: "Nhân vật BTS có tính cách lãnh đạo và thường xuyên đứng ra làm trưởng nhóm trong các hoạt động nhóm không?", yes: [1], no: [0, 2, 3, 4, 5, 6] },
+            { question: "Nhân vật BTS nổi bật với giọng hát trầm và ấm áp không?", yes: [6, 5], no: [0, 1, 2, 3, 4] },
+            { question: "Nhân vật BTS đến từ Gwangju không?", yes: [3], no: [0, 1, 2, 4, 5, 6] },
+            { question: "Nhân vật BTS có chiều cao tương đối thấp hơn so với các thành viên khác không?", yes: [2], no: [0, 1, 3, 4, 5, 6] },
+            { question: "Nhân vật BTS đã đạt giải thưởng âm nhạc lớn, chẳng hạn như giải thưởng Billboard Music Award không?", yes: [0, 1, 2], no: [3, 4, 5, 6] },
+            { question: "Nhân vật BTS có tham gia vào các hoạt động từ thiện đáng chú ý không?", yes: [2, 6, 0], no: [1, 3, 4, 5] }
+        ];
+
+        const members = ["Jungkook", "RM", "Jimin", "J-Hope", "Suga", "Jin", "V"];
+
+        let currentQuestionIndex = 0;
+        let possibleMembers = [...members];
+        const questionContainer = document.getElementById('question-container');
+        const result = document.getElementById('result');
+        const restartButton = document.getElementById('restart');
+
+        // Shuffle questions
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function loadQuestion() {
+            const question = questions[currentQuestionIndex];
+            const questionElement = document.querySelector('.question');
+            questionElement.textContent = question.question;
+        }
+
+        function answerQuestion(answer) {
+            const question = questions[currentQuestionIndex];
+            if (answer) {
+                possibleMembers = possibleMembers.filter(member => question.yes.includes(members.indexOf(member)));
+            } else {
+                possibleMembers = possibleMembers.filter(member => question.no.includes(members.indexOf(member)));
+            }
+
+            if (possibleMembers.length === 1) {
+                displayResult();
+                return;
+            }
+
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                displayResult();
+            }
+        }
+
+        function displayResult() {
+            if (possibleMembers.length === 1) {
+                result.textContent = `Nhân vật BTS mà bạn nghĩ đến là ${possibleMembers[0]}! 🎉`;
+            } else if (possibleMembers.length === 0) {
+                result.textContent = "Chúng tôi không thể đoán được nhân vật BTS của bạn. 😔";
+            } else {
+                result.textContent = "Chúng tôi không thể xác định rõ nhân vật BTS dựa trên câu hỏi. 😕";
+            }
+            result.classList.remove('hidden');
+            restartButton.classList.remove('hidden');
+            questionContainer.classList.add('hidden');
+        }
+
+        function restartGame() {
+            currentQuestionIndex = 0;
+            possibleMembers = [...members];
+            result.classList.add('hidden');
+            restartButton.classList.add('hidden');
+            questionContainer.classList.remove('hidden');
+            shuffle(questions); // Shuffle questions when restarting
+            loadQuestion();
+        }
+
+        // Start the game
+        shuffle(questions); // Shuffle questions at the beginning
+        loadQuestion();
+    </script>
+</body>
+</html>
